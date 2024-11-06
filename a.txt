@@ -1,0 +1,73 @@
+setKey('standard_7b920bb95679fa66cbe8c3d770c71e262548d7d55f53d1a5be58a43ee0b223ab851d9f6a28260c3ee2a7a7fa571d01469dc253f4610869cc893c8ae176817cda9ecd110ebb266c531fe27dc7c9e78bec7e0e5060ac92233a74ad51e15e5587ea562a1b9673b47e7541fe54bda904c0deb555a7b3aab931f58516ceec23d8c142');
+
+
+"use client";
+import { useState } from "react";
+import { account, ID } from "../Appwrite/appwrite";
+
+const LoginPage = () => {
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+
+  const login = async (email, password) => {
+    const session = await account.createEmailPasswordSession(email, password);
+    setLoggedInUser(await account.get());
+  };
+
+  const register = async () => {
+    await account.create(ID.unique(), email, password, name);
+    login(email, password);
+  };
+
+  const logout = async () => {
+    await account.deleteSession("current");
+    setLoggedInUser(null);
+  };
+
+  if (loggedInUser) {
+    return (
+      <div>
+        <p>Logged in as {loggedInUser.name}</p>
+        <button type="button" onClick={logout}>
+          Logout
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <p>Not logged in</p>
+      <form>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <button type="button" onClick={() => login(email, password)}>
+          Login
+        </button>
+        <button type="button" onClick={register}>
+          Register
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default LoginPage;
